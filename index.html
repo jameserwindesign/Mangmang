@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    
+    <title>Holographic Cat Card</title>
+    <style>
+        :root {
+            --color1: rgb(0, 231, 255);
+            --color2: rgb(255, 0, 231);
+            --card-width: 300px;
+            --card-height: 420px;
+            --card-rounded: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        @supports (-webkit-touch-callout: none) {
+            body {
+                /* iOS 15+ safe area - accounts for notches and home indicator */
+                padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+                /* Use the full height of the screen */
+                height: -webkit-fill-available;
+            }
+            
+            .container {
+                /* Adjust for iOS visual viewport */
+                top: calc(50% - env(safe-area-inset-top)/2);
+            }
+}
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f1f1f1;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            touch-action: none;
+        }
+
+        .container {
+                display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        /* Ensure it's centered on the screen */
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        }
+
+        /* Card container */
+        .card {
+            width: var(--card-width);
+            height: var(--card-height);
+            position: relative;
+            border-radius: var(--card-rounded);
+            overflow: hidden !important;            
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            /* background-color: #f8d030; */
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+            transform-origin: center center;
+            transform-style: preserve-3d;
+            transition: transform 0.2s ease;
+            -webkit-transform-style: preserve-3d;
+            -webkit-backface-visibility: hidden;
+            /* border: 1px solid blue; */
+            isolation: isolate;
+            
+
+        }
+
+        
+        .card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10; /* Higher than any other layer */
+            pointer-events: none;
+            border-radius: var(--card-rounded);
+            overflow: hidden !important;
+            opacity: 1;
+   
+        }
+
+
+        .card__inner {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: var(--card-rounded);
+            overflow: hidden !important;
+            z-index: 1;
+        }
+        /* Card layers */
+        .card__layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            -webkit-backface-visibility: hidden;
+            /* border: 1px solid red; */
+            border-radius: var(--card-rounded);
+            overflow: hidden !important;
+            /* Force hardware acceleration for mobile */
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
+
+        .card, .card__layer {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            will-change: transform;
+}
+.card__frame {
+    /* Keep your existing styles */
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    position: absolute;
+    border-radius: var(--card-rounded);
+    overflow: hidden !important;
+    background-position: center;
+    border: 11px solid #d8d8d8;
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2),
+                inset 0 5px 10px rgba(0, 0, 0, 0.1),
+                inset 0 -1px 2px rgba(255, 255, 255, 0.5);
+    
+    /* Add fine texture */
+    position: relative;
+}
+
+/* Create a pseudo-element for the fine tiled texture */
+.card__frame::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('trainerbg.png'); /* Your fine texture image */
+    background-size: 50px 50px; /* Small size for fine detail - adjust as needed */
+    background-repeat: repeat; /* Explicitly set to repeat */
+    opacity: 0.2; /* Very subtle for fine texture */
+    mix-blend-mode: overlay; /* Good for fine textures */
+    pointer-events: none;
+    z-index: 4;
+    border-radius: var(--card-rounded);
+}
+
+        
+
+        .card__border {
+            border: 20px solid #a8a8a8;
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            z-index: 3;
+            max-width: 500px;
+            box-sizing: border-box;
+            background: linear-gradient(145deg, #d0d0d0, #f5f5f5, #d0d0d0);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2),
+                        inset 0 1px 3px rgba(255, 255, 255, 0.9);
+}
+        
+        .card__fg {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 4;
+            position: absolute;
+            border-radius: var(--card-rounded);
+            overflow: hidden !important;
+            background-size: cover;
+            background-position: center;
+            background-image:url('frame.png');
+
+        }
+
+        .card__text {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 4;
+            position: absolute;
+            border-radius: var(--card-rounded);
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            background-image: url('text.png');
+        }
+
+        .card__tag {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 4;
+            position: absolute;
+            border-radius: var(--card-rounded);
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            background-image: url('tag.png');
+        }
+
+        .card__character {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            position: absolute;
+            transform: translateZ(100px);
+            /* This will be your cat artwork */
+            background-image: url('card_bg.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            clip-path: inset(0 round var(--card-rounded));
+            -webkit-clip-path: inset(0 round var(--card-rounded));
+                        /* Additional fixes for mobile overflow */
+            transform: translateZ(0px);
+            -webkit-transform: translateZ(0px);
+            background-image: url("https://assets.codepen.io/13471/sparkles.gif"), 
+            url(card_bg.png), 
+            linear-gradient(125deg, #ffffff50 15%, #ffffff40 30%, #ffffff30 40%, #ffffff20 60%, #ffffff40 70%, #ffffff50 85%);
+            background-position: 50% 50%;
+            background-size: 100%;
+            background-blend-mode: soft-light;
+            z-index: 2;
+            filter: brightness(1) contrast(1);
+            transition: all .33s ease;
+            mix-blend-mode: multiply;
+            opacity: 1;
+            
+        }
+
+
+
+        
+        .card__shine {
+            --shine-x: 50%;
+            --shine-y: 50%;
+            --shine-opacity: 0;
+            --shine-blur: 40px;
+            
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10;
+            border-radius: var(--card-rounded);
+            background-image: radial-gradient(
+                circle at var(--shine-x) var(--shine-y), 
+                rgba(255, 255, 255, var(--shine-opacity)) 0%,
+                rgba(255, 255, 255, 0) 50%
+            );
+            filter: blur(var(--shine-blur));
+            mix-blend-mode: overlay;
+            pointer-events: none;
+        }
+
+
+@keyframes holo-animation {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+}
+
+        .card__holographic {
+            --holo-x: 100%;
+            --holo-y: 0%;
+            --holo-opacity: 0.8;
+            
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2;
+            border-radius: var(--card-rounded);
+            background-image: linear-gradient(
+                135deg,
+                rgba(255, 0, 0, var(--holo-opacity)) 0%,
+                rgba(255, 255, 0, var(--holo-opacity)) 16%,
+                rgba(0, 255, 0, var(--holo-opacity)) 33%,
+                rgba(0, 255, 255, var(--holo-opacity)) 50%,
+                rgba(0, 0, 255, var(--holo-opacity)) 66%,
+                rgba(255, 0, 255, var(--holo-opacity)) 83%,
+                rgba(255, 0, 0, var(--holo-opacity)) 100%
+            );
+            background-position: var(--holo-x) var(--holo-y);
+            background-size: 100% 100%;
+            mix-blend-mode: screen;
+            opacity: 0.7;
+            transition: opacity 0.4s ease;
+        }
+
+        .card:hover .card__holographic {
+            opacity: 1;
+        }
+        
+        .card, .card__layer, .card__character, .card__frame {
+            border-radius: var(--card-rounded);
+            overflow: hidden;
+}
+
+
+
+        .card__glare {
+            --glare-x: 50%;
+            --glare-y: 50%;
+            --glare-opacity: 0;
+            --glare-blur: 30px;
+            
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9;
+            border-radius: var(--card-rounded);
+            background: radial-gradient(
+                circle at var(--glare-x) var(--glare-y), 
+                rgba(255, 255, 255, var(--glare-opacity)) 0%,
+                rgba(255, 255, 255, 0) 80%
+            );
+            filter: blur(var(--glare-blur));
+            mix-blend-mode: overlay;
+            pointer-events: none;
+        }
+
+        .card__holographic {
+            --holo-x: 50%;
+            --holo-y: 0%;
+            --holo-opacity: 0.2;
+            
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2;
+            border-radius: var(--card-rounded);
+            background-image: linear-gradient(
+                135deg,
+                rgba(255, 0, 0, var(--holo-opacity)) 0%,
+                rgba(255, 255, 0, var(--holo-opacity)) 16%,
+                rgba(0, 255, 0, var(--holo-opacity)) 33%,
+                rgba(0, 255, 255, var(--holo-opacity)) 50%,
+                rgba(0, 0, 255, var(--holo-opacity)) 66%,
+                rgba(255, 0, 255, var(--holo-opacity)) 83%,
+                rgba(255, 0, 0, var(--holo-opacity)) 100%
+            );
+            background-position: var(--holo-x) var(--holo-y);
+            background-size: 300% 300%;
+            mix-blend-mode: color-dodge;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover .card__holographic {
+            opacity: 1;
+        }
+
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f1f1f1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .star-container {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            margin-bottom: 20px;
+        }
+
+        .star-outline {
+            position: absolute;
+            width: 60%;
+            height: 60%;
+            /* Star shape with subtle rounded corners using polygon */
+            clip-path: polygon(
+                50% 0%, 
+                61% 35%, 
+                98% 35%, 
+                68% 57%, 
+                79% 91%, 
+                50% 70%, 
+                21% 91%, 
+                32% 57%, 
+                2% 35%, 
+                39% 35%
+            );
+            background-color: rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .star-fill {
+            position: absolute;
+            width: 0%; /* Starts at 0% width */
+            height: 100%;
+            background-color: #eab300;
+            animation: fill 2s ease-in-out infinite;
+        }
+
+        @keyframes fill {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        #loading-screen p {
+            color: #333;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+        }
+
+        .loaded {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="star-container">
+          <div class="star-outline">
+            <div class="star-fill"></div>
+          </div>
+        </div>
+
+      </div>
+    <div class="container">
+        <!-- <div class="card__inner"> -->
+        <div class="card" id="card">
+            
+            <div class="card__layer card__character"></div>
+            <div class="card__layer card__holographic"></div>
+            <div class="card__layer card__frame"></div>
+            <div class="card__layer card__fg"></div>
+            <div class="card__layer card__text"></div>
+            <div class="card__layer card__tag"></div>
+            
+            <div class="card__layer card__shine"></div>
+            <div class="card__layer card__sparkles" id="sparkles"></div>
+            
+
+            <div class="card__layer card__glare"></div>
+ 
+        </div>
+        <!-- </div> -->
+    </div>
+    <!-- <div class="debug-info" id="debug-info"></div>         -->
+
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Get the loading screen and card elements
+  const loadingScreen = document.getElementById('loading-screen');
+  const cardContainer = document.querySelector('.card-container'); // Target your card container
+  
+  if (!cardContainer) {
+    console.error('Card container not found! Make sure you have an element with class "card-container"');
+  }
+  
+  // Hide the card initially
+  if (cardContainer) {
+    cardContainer.style.opacity = '0';
+  }
+  
+  // Create the star animation elements programmatically
+  const starContainer = document.createElement('div');
+  starContainer.className = 'star-container';
+  
+  const starOutline = document.createElement('div');
+  starOutline.className = 'star-outline';
+  
+  const starFill = document.createElement('div');
+  starFill.className = 'star-fill';
+  
+  // Assemble the star components
+  starOutline.appendChild(starFill);
+  starContainer.appendChild(starOutline);
+  
+  // Add loading text
+  const loadingText = document.createElement('p');
+  loadingText.textContent = '';
+  
+  // Clear and rebuild the loading screen contents
+  loadingScreen.innerHTML = '';
+  loadingScreen.appendChild(starContainer);
+  loadingScreen.appendChild(loadingText);
+  
+  // Set up animation completion listener before starting animation
+  starFill.addEventListener('animationend', function animationEndHandler() {
+    console.log('Star fill animation complete');
+    
+    // Wait a moment after the star is filled
+    setTimeout(function() {
+      // First hide the loading screen
+      loadingScreen.classList.add('loaded');
+      
+      // After loading screen starts fading out, start fading in the card
+      setTimeout(function() {
+        // Remove loading screen from DOM
+        loadingScreen.style.display = 'none';
+        
+        // Show the card
+        if (cardContainer) {
+          cardContainer.classList.add('card-visible');
+          console.log('Card visibility set to visible');
+        }
+      }, 600); // Wait for loading screen fade out
+    }, 300); // Brief pause after animation completes
+    
+    // Remove this listener to prevent multiple triggers
+    starFill.removeEventListener('animationend', animationEndHandler);
+  });
+  
+  // Force the browser to recognize the newly added element before starting animation
+  setTimeout(function() {
+    console.log('Starting star fill animation');
+    // Ensure animation starts from the beginning
+    starFill.style.animation = 'none';
+    void starFill.offsetWidth; // Force reflow
+    starFill.style.animation = 'fill 1s ease-in-out forwards';
+  }, 50);
+  
+  // Fallback: Absolute maximum wait time
+  setTimeout(function() {
+    if (!loadingScreen.classList.contains('loaded')) {
+      console.log('Fallback: Maximum wait time reached');
+      loadingScreen.classList.add('loaded');
+      
+      setTimeout(function() {
+        loadingScreen.style.display = 'none';
+        
+        if (cardContainer) {
+          cardContainer.classList.add('card-visible');
+        }
+      }, 500);
+    }
+  }, 8000);
+});
+
+        
+        // Event variables
+        let isPointerDown = false;
+        let translateX = 0;
+        let translateY = 0;
+        let rotateX = 0;
+        let rotateY = 0;
+        let startX, startY;
+        
+        // Motion constraints
+        const MAX_ROTATION = 30; // Reduced from 15 to limit extreme angles
+        const MAX_PARALLAX_SHIFT = 45; // Reduced for more subtle movement
+        const SENSITIVITY = 0.17; // Reduced for more controlled movement
+        
+        // Holographic effect constraints
+        const MIN_PERCENT_X = 20; // Prevent holographic effect from going too far left
+        const MAX_PERCENT_X = 90; // Prevent holographic effect from going too far right
+        const MIN_PERCENT_Y = 20; // Prevent holographic effect from going too far up
+        const MAX_PERCENT_Y = 90; // Prevent holographic effect from going too far down
+        
+        // Initialize
+        const rect = card.getBoundingClientRect();
+        const cardCenterX = rect.left + rect.width / 2;
+        const cardCenterY = rect.top + rect.height / 2;
+        
+        // Handle pointer movements
+        card.addEventListener('pointerdown', handlePointerDown);
+        document.addEventListener('pointermove', handlePointerMove);
+        document.addEventListener('pointerup', handlePointerUp);
+        
+        
+        function handlePointerDown(e) {
+            isPointerDown = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            card.style.transition = 'none';
+        }
+        
+        function handlePointerMove(e) {
+            if (!isPointerDown) {
+                // Subtle movement on hover
+                const mouseX = e.clientX;
+                const mouseY = e.clientY;
+                
+                // Calculate distance from center
+                const distX = mouseX - cardCenterX;
+                const distY = mouseY - cardCenterY;
+                
+                // Normalize to limited range
+                // rotateY = distX / (rect.width / 2) * (MAX_ROTATION / 2); // Half max rotation for hover
+                // rotateX = -distY / (rect.height / 2) * (MAX_ROTATION / 2); // Half max rotation for hover
+                
+                // // Apply constraints
+                // rotateY = Math.max(-MAX_ROTATION/2, Math.min(MAX_ROTATION/2, rotateY));
+                // rotateX = Math.max(-MAX_ROTATION/2, Math.min(MAX_ROTATION/2, rotateX));
+                
+                // updateCard(mouseX, mouseY, 0.4); // Subtle effect
+                return;
+            }
+            
+            // More pronounced movement when dragging
+            const currentX = e.clientX;
+            const currentY = e.clientY;
+            
+            // Calculate drag distance
+            const dragX = currentX - startX;
+            const dragY = currentY - startY;
+            
+            // Calculate rotation with lower sensitivity
+            rotateY = dragX / 3; // Reduced sensitivity (was /10)
+            rotateX = -dragY / 3; // Reduced sensitivity (was /10)
+            
+            // Apply constraints
+            rotateY = Math.max(-MAX_ROTATION, Math.min(MAX_ROTATION, rotateY));
+            rotateX = Math.max(-MAX_ROTATION, Math.min(MAX_ROTATION, rotateX));
+            
+            updateCard(currentX, currentY, 1); // Full effect
+        }
+        
+        function handlePointerUp() {
+            isPointerDown = false;
+            
+            // Smoothly reset the card
+            card.style.transition = 'transform 0.4s ease, box-shadow 0.4s ease';
+            // fgLayer.style.transition = 'transform 0.5s ease, box-shadow 0.5s ease';
+            setTimeout(() => {
+                rotateX = 0;
+                rotateY = 0;
+                updateCard(cardCenterX, cardCenterY, 0);
+            }, 10);
+        }
+        
+        function updateCard(mouseX, mouseY, intensity) {
+            // Update card transform
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            
+            // Update shadow based on rotation
+            const shadowBlur = 1 + Math.abs(rotateX) + Math.abs(rotateY);
+            const shadowOffsetX = rotateY / 4;
+            const shadowOffsetY = rotateX / 4;
+            card.style.boxShadow = `
+                ${shadowOffsetX}px ${shadowOffsetY}px ${shadowBlur}px rgba(0, 0, 0, 0.4)
+            `;
+            // card.style.transition = 'box-shadow 0.4s ease';
+            
+            // Calculate percentage position
+            const cardRect = card.getBoundingClientRect();
+            const cardX = cardRect.left;
+            const cardY = cardRect.top;
+            const cardWidth = cardRect.width;
+            const cardHeight = cardRect.height;
+            
+            let percentX = (mouseX - cardX) / cardWidth * 100;
+            let percentY = (mouseY - cardY) / cardHeight * 100;
+            
+            // Constrain percentage values to prevent holographic effect from breaking
+            percentX = Math.max(MIN_PERCENT_X, Math.min(MAX_PERCENT_X, percentX));
+            percentY = Math.max(MIN_PERCENT_Y, Math.min(MAX_PERCENT_Y, percentY));
+            
+            // Parallax for the character layer - reduced movement
+            const characterLayer = card.querySelector('.card__character');
+            const moveX = (percentX - 50) * SENSITIVITY;
+            const moveY = (percentY - 50) * SENSITIVITY;
+            // characterLayer.style.transform = `translateZ(50px) translate(-5%, -5%) translateX(${moveX}px) translateY(${moveY}px)`;
+            characterLayer.style.setProperty = ('--shine-opacity', 0.5 * intensity);
+            characterLayer.style.transition = 'transform 0.3s ease';
+
+            const fgLayer = card.querySelector('.card__fg');
+            // fgLayer.style.transform = `translateZ(50px) translateX(${moveX*1.2}px) translateY(${moveY*1.2}px)`;
+            fgLayer.style.transition = 'transform 0.2s ease';
+
+
+            const frameLayer = card.querySelector('.card__frame');
+            frameLayer.style.boxShadow = `
+                inset ${shadowOffsetX}px ${shadowOffsetY}px ${shadowBlur}px rgba(0, 0, 0, 0.3)
+            `;
+            frameLayer.style.transition = 'transform 0.0s ease, box-shadow 0.2s ease';
+            
+            // Update shine effect with controlled values
+            const shineLayer = card.querySelector('.card__shine');
+            shineLayer.style.setProperty('--shine-x', `${percentX}%`);
+            shineLayer.style.setProperty('--shine-y', `${percentY}%`);
+            shineLayer.style.setProperty('--shine-opacity', 0.20 * intensity); // Slightly reduced intensity
+            shineLayer.style.transition = 'transform 0.3s ease';
+            
+            // Update holographic effect with controlled values
+            const holoLayer = card.querySelector('.card__holographic');
+            holoLayer.style.setProperty('--holo-x',`${percentX}%`);
+            holoLayer.style.setProperty('--holo-y',`${percentY}%`);
+            holoLayer.style.opacity = intensity;
+            holoLayer.style.setProperty('--holo-opacity', 0.6 * intensity); // Slightly reduced intensity
+            
+
+            
+            // Update glare effect with controlled values
+            const glareLayer = card.querySelector('.card__glare');
+            glareLayer.style.setProperty('--glare-x', `${percentX}%`);
+            glareLayer.style.setProperty('--glare-y', `${percentY}%`);
+            glareLayer.style.setProperty('--glare-opacity', 0.30 * intensity); // Slightly reduced intensity
+            
+            // Request next frame with gentle falloff
+            if (isPointerDown || intensity > 0.01) {
+                requestAnimationFrame(() => {
+                    // Gentle falloff of intensity if not pressed
+                    const nextIntensity = isPointerDown ? intensity : intensity * 0.95;
+                    updateCard(mouseX, mouseY, nextIntensity);
+                });
+            } else {
+                // Stop animation completely when intensity is very low
+                const characterLayer = card.querySelector('.card__character');
+                characterLayer.style.transform = `translateZ(20px)`;
+            }
+        }
+        
+
+        // Initial update
+        updateCard(cardCenterX, cardCenterY, 0);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const newRect = card.getBoundingClientRect();
+            cardCenterX = newRect.left + newRect.width / 2;
+            cardCenterY = newRect.top + newRect.height / 2;
+        });
+    </script>
+</body>
+</html>
